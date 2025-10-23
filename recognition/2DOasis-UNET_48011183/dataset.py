@@ -16,11 +16,11 @@ class OASISDataset(Dataset):
         self.transform = transform
 
 
-    def __len__(self): # hey
+    def __len__(self):
         return len(self.image_files)
 
     def __getitem__(self, i):
-        # Builds file path
+        # Builds file paths
         img_path = os.path.join(self.image_dir, self.image_files[i])
         mask_path = os.path.join(self.mask_dir, self.mask_files[i])
 
@@ -33,15 +33,14 @@ class OASISDataset(Dataset):
         image = tf.to_tensor(image)    
         mask = tf.to_tensor(mask) 
 
-        # Apply transform (optional)
+        # Apply transform (none by default)
         if self.transform:
             image, mask = self.transform(image, mask)
-
         return image, mask
     
-
+"""
 if __name__ == "__main__":
     ds = OASISDataset("OASIS/keras_png_slices_train", "OASIS/keras_png_slices_seg_train")
-    img, mask = ds[1000]
+    img, mask = ds[0]
     print("Image shape:", img.shape, "Mask shape:", mask.shape)
-
+"""
