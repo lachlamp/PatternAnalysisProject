@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as f
+import torch.optim as optim
 
 # Used for feature extraction
 # Two Convolution sequences
@@ -24,7 +25,6 @@ class DoubleConv(nn.Module):
         return self.conv(x)
     
 
-
 class Down(nn.Module):
     def __init__(self, in_ch, out_ch):
         super().__init__()
@@ -46,15 +46,10 @@ class Up(nn.Module):
         super().__init__()
 
         if bilinear:
-            self.up = nn.Sequential(
-                # Non-learnable scaling
-                nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
-                nn.Conv2d(in_ch, out_ch, 1)
-            )
+            self.up = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
         else:
             # Learnable
-            self.up = nn.ConvTranspose2d(in_ch, out_ch, 2, 2)
-        
+            self.up = nn.ConvTranspose2d(in_ch // 2, out_ch // 2, 2, 2)
         self.conv = DoubleConv(in_ch, out_ch)
 
     def forward(self, x, y):
@@ -72,7 +67,7 @@ class Up(nn.Module):
 
         # Refines features using DoubleConv
         return self.conv(torch.cat([y, x], 1))
-        
+
 
 # Reduces feature maps from in_ch to out_ch
 class OutConv(nn.Module):
@@ -82,7 +77,7 @@ class OutConv(nn.Module):
 
     def forward(self, x):
         return self.conv(x)
-    
+
 
 
 class ImprovedUNET(nn.Module):
@@ -92,14 +87,37 @@ class ImprovedUNET(nn.Module):
         self.classes = classes
         self.bilinear = bilinear
 
-        # Enocde, Decode, Output
+        self.factor = 2 if self.bilinear else 1
 
+        self.inconv = DoubleConv(channels, 64)
+        self.outconv = OutConv(64, classes)
 
+        self.encode()
+        self.decode()
+
+    def encode(self):
+        self.down1 = Down(64, 128)
+        self.down2 = Down(128, 256)
+        self.down3 = Down(256,512)
+        self.down4 = Down(512, 1024 // self.factor)
+    
+    def decode(self):
+        self.up1 = Up(1024 // self.factor + 512, 512 // self.factor, self.bilinear)
+        self.up2 = Up(512 // self.factor + 256, 256 // self.factor, self.bilinear)
+        self.up3 = Up(256 // self.factor + 128, 128 // self.factor, self.bilinear)
+        self.up4 = Up(128 // self.factor + 64, 64, self.bilinear)
 
     def forward (self, x):
-        # Encode, Decode
-        pass
+        x1 = self.inconv(x)
 
+        x2 = self.down1(x1)
+        x3 = self.down2(x2)
+        x4 = self.down3(x3)
+        x5 = self.down4(x4)
 
-if __name__ == "__main__":
-    pass
+        x = self.up1(x5, x4)
+        x = self.up2(x, x3)
+        x = self.up3(x, x2)
+        x = self.up4(x, x1)
+
+        return self.outconv(x)
