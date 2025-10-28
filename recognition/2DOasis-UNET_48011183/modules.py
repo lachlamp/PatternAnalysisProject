@@ -85,8 +85,21 @@ class OutConv(nn.Module):
     
 
 
+class ImprovedUNET(nn.Module):
+    def __init__ (self, channels, classes, bilinear=True):
+        super().__init__()
+        self.channels = channels
+        self.classes = classes
+        self.bilinear = bilinear
+
+        # Enocde, Decode, Output
+
+
+
+    def forward (self, x):
+        # Encode, Decode
+        pass
+
+
 if __name__ == "__main__":
-    x = torch.randn(1, 64, 256, 256)
-    out = OutConv(64, 1)
-    y = out(x)
-    print(y.shape)
+    pass
