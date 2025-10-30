@@ -22,14 +22,50 @@ model.eval()
 
 
 EPSILON = 1e-5
-def dice(pred, target):
-    pred = torch.sigmoid(pred)
-    pred = (pred > 0.5).float()
-    target = (target > 0.5).float()
-    intersect = (pred * target).sum(dim=(1,2,3))
-    union = pred.sum(dim=(1,2,3)) + target.sum(dim=(1,2,3))
-    return ((2 * intersect + EPSILON) / (union + EPSILON)).mean().item()
+def dice(prediction, target):
+    """
+    Computes the Dice similarity coefficient between predicted and ground truth masks.
+    
+    Measures the overlap between two binary masks. Values range
+    from 0 to 1 (perfect overlap). 
 
+    Args:
+        prediction (torch.Tensor): Raw output from the model (logits), shape [B, C, H, W].
+        target (torch.Tensor): Ground truth mask, shape [B, C, H, W].
+
+    Returns:
+        float: Average Dice coefficient over the batch.
+    """
+    # Apply sigmoid to logits to get probabilities
+    prediction = torch.sigmoid(prediction)
+    # Threshold probabilities at 0.5 to get binary mask
+    prediction = (prediction > 0.5).float()
+    
+    # Ensure target is binary
+    target = (target > 0.5).float()
+    
+    # Compute intersection and union
+    intersect = (prediction * target).sum(dim=(1,2,3))
+    union = prediction.sum(dim=(1,2,3)) + target.sum(dim=(1,2,3))
+
+    # Compute Dice Coefficient
+    # Epsilon used to avoid division by zero
+    return ((2 * intersect + EPSILON) / (union + EPSILON)).mean().item()
 
 os.makedirs("predicted_masks", exist_ok=True)
 dice_scores = []
+
+with torch.no_grad():
+    for i, (image, mask) in enumerate(test_loader):
+        image = image.to(device)
+        mask = mask.to(device)
+
+        output = model(image)
+        pred_mask = torch.sigmoid(output)
+        pred_mask_bin = (pred_mask > 0.5).float()
+
+        plt.imsave(f"predicted_masks/mask_{i}.png", pred_mask_bin[0,0].cpu(), cmap='gray')
+
+        dice_score = dice(output, mask)
+        dice_scores.append(dice_score)
+        print(f"Image {i}: Dice = {dice_score:.4f}")
