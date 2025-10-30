@@ -4,7 +4,26 @@ from PIL import Image
 import torchvision.transforms.functional as tf
 
 class OASISDataset(Dataset):
+    """
+    Custom PyTorch Dataset for loading 2D OASIS brain MRI images and their corresponding segmentation masks.
+
+    Args:
+        image_dir (str): Path to the directory containing MRI slice images.
+        mask_dir (str): Path to the directory containing segmentation mask images.
+        transform (default: None) Optional function or transform to apply to image and mask tensors (default).
+
+    Returns:
+        tuple: (image, mask), where both are torch.FloatTensors of shape [1, H, W].
+
+    Example:
+        >>> ds = OASISDataset("OASIS/keras_png_slices_train", "OASIS/keras_png_slices_seg_train")
+        >>> img, mask = ds[0]
+        >>> img.shape, mask.shape
+        (torch.Size([1, 256, 256]), torch.Size([1, 256, 256]))
+    """
+    
     def __init__(self, image_dir, mask_dir, transform=None):
+        # Locations of images
         self.image_dir = image_dir
         self.mask_dir = mask_dir
 
@@ -35,10 +54,3 @@ class OASISDataset(Dataset):
         if self.transform:
             image, mask = self.transform(image, mask)
         return image, mask
-    
-"""
-if __name__ == "__main__":
-    ds = OASISDataset("OASIS/keras_png_slices_train", "OASIS/keras_png_slices_seg_train")
-    img, mask = ds[0]
-    print("Image shape:", img.shape, "Mask shape:", mask.shape)
-"""
