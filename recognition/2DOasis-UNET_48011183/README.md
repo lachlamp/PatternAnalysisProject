@@ -66,6 +66,12 @@ Forward pass workflow:
 	3.	Decoder upsamples the features while concatenating skip connections from the encoder.
 	4.	Final segmentation map is produced by outconv.
 
+![UNET Diagram](readme_images/unet.png)
+
+*Model Structure of UNET Diagram*
+
+*Source: [Zixuan Wang et al., 2024](https://arxiv.org/abs/2409.08588)*
+
 
 ## _train.py_
 
@@ -201,4 +207,16 @@ Dice Score: 0.9735
 Dice Score: 0.9798
 ![Example 4](readme_images/example_4.png)
 Dice Score: 0.9802
+
+
+## References
+
+
+
+Al Qurri, A., & Almekkawy, M. (2023). Improved UNet with Attention for Medical Image Segmentation. Sensors (Basel, Switzerland), 23(20), 8589. https://doi.org/10.3390/s23208589
+
+Basic writing and formatting syntax. (n.d.). GitHub Docs. https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax
+
+Wang, Z., Chen, Y., Wang, F., & Bao, Q. (2024). Improved Unet model for brain tumor image segmentation based on ASPP-coordinate attention mechanism. ArXiv.org. https://arxiv.org/abs/2409.08588
+
 
