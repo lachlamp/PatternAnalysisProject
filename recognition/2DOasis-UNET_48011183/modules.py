@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as f
-import torch.optim as optim
 
 class DoubleConv(nn.Module):
     """
@@ -114,9 +113,10 @@ class Up(nn.Module):
         super().__init__()
 
         if bilinear:
+            # Non learnable upsampling, resizes the image
             self.up = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
         else:
-            # Learnable
+            # Learnable upsampling
             self.up = nn.ConvTranspose2d(in_ch // 2, out_ch // 2, 2, 2)
         self.conv = DoubleConv(in_ch, out_ch)
 
@@ -137,7 +137,6 @@ class Up(nn.Module):
         return self.conv(torch.cat([y, x], 1))
 
 
-# Reduces feature maps from in_ch to out_ch
 class OutConv(nn.Module):
     """
     Final output convolution layer used in UNet architectures. Performs a 1×1

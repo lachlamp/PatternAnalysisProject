@@ -34,6 +34,8 @@ Applies two convolution sequences involving batch normalisation and ReLu activat
 * Down
 
 Downscaling block that reduces spatial resolution by a factor of 2 and increases feature depth.
+
+
 * Up
 
 Upscaling block that restores spatial resolution and fuses encoder and decoder
@@ -112,6 +114,9 @@ A custom dice function computes the Dice similarity coefficient for predicted ma
 After each epoch, the model is evaluated on the validation set without gradient tracking. Loss and Dice scores are calculated to monitor generalisation. For safety, model weights are saved after each epoch.
 
 
+
+
+
 ### predict.py
 The predict.py script demonstrates how to use a trained ImprovedUNET model to segment unseen OASIS 2D brain images and evaluate performance. The prediction script requires at least one epoch to have been completed, and saved to disk before running.
 
@@ -152,6 +157,9 @@ These libraries can be installed in a single step using _pip_:
 pip install torch==2.5.1 torchvision==0.15.0 matplotlib pillow
 
 ```
+
+
+
 
 The PNG slices must be in a folder inside your current directory, and sorted as follows:
 ```

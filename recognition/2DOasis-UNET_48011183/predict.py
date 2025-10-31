@@ -16,7 +16,7 @@ BATCH_SIZE = 1
 dataset = OASISDataset(images, masks)
 test_loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False)
 
-# Path to model checkpoint
+# Checkpoints stored in checkpoints/...
 MODEL_PATH = "checkpoints/improved_unet_epoch1.pth"
 # Initialise model and load saved weights
 model = ImprovedUNET(channels=1, classes=1, bilinear=True).to(device)
@@ -24,7 +24,6 @@ model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
 # Evaluation mode
 model.eval()
 
-# Used to avoid division by zero
 EPSILON = 1e-5
 def dice(prediction, target):
     """
@@ -56,6 +55,7 @@ def dice(prediction, target):
     # Epsilon used to avoid division by zero
     return ((2 * intersect + EPSILON) / (union + EPSILON)).mean().item()
 
+# Storing predicted masks
 os.makedirs("predicted_masks", exist_ok=True)
 dice_scores = []
 
@@ -96,6 +96,8 @@ with torch.no_grad():
             axs[2].set_title("Ground Truth Mask")
             axs[2].axis('off')
 
+            plt.savefig(f"readme_images/example_{i}.png")
+
             # Display without blocking execution
             plt.show(block=False)  
             plt.pause(0.5)         
@@ -104,4 +106,8 @@ with torch.no_grad():
 # Calculates, prints the overall test set Dice coefficient as metric for model
 # performance.
 average_dice = sum(dice_scores) / len(dice_scores)
+min_dice = min(dice_scores)
+max_dice = max(dice_scores)
 print(f"\nAverage Test Dice: {average_dice:.4f}")
+print(f"\nMin Test Dice: {min_dice:.4f}")
+print(f"\nMax Test Dice: {max_dice:.4f}")

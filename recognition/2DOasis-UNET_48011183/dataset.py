@@ -16,12 +16,12 @@ class OASISDataset(Dataset):
         tuple: (image, mask), where both are torch.FloatTensors of shape [1, H, W].
 
     Example:
-        >>> ds = OASISDataset("OASIS/keras_png_slices_train", "OASIS/keras_png_slices_seg_train")
-        >>> img, mask = ds[0]
+        >>> dataset = OASISDataset("OASIS/keras_png_slices_train", "OASIS/keras_png_slices_seg_train")
+        >>> img, mask = dataset[0]
         >>> img.shape, mask.shape
         (torch.Size([1, 256, 256]), torch.Size([1, 256, 256]))
     """
-    
+
     def __init__(self, image_dir, mask_dir, transform=None):
         # Locations of images
         self.image_dir = image_dir
